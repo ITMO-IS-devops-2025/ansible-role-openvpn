@@ -1,0 +1,12 @@
+---
+driver:
+  name: docker
+platforms:
+  - name: instance
+    image: ubuntu/python:3.12-24.04_stable
+    pre_build_image: true
+    privileged: true
+provisioner:
+  name: ansible
+verifier:
+  name: ansible

@@ -1,0 +1,141 @@
+---
+# tasks file for ansible-role-openvpn
+- name: Update apt packages
+  become: true
+  apt:
+    upgrade: yes
+
+- name: Install Open-VPN required packages
+  package:
+   name: "{{ item }}"
+   state: present
+  with_items:
+    - openvpn
+    - easy-rsa
+
+- name: Ensure /easy-rsa exists
+  ansible.builtin.file:
+    path: "{{ easy_rsa_configuration_directory }}"
+    state: directory
+    mode: "0755"
+
+- name: Easy-RSA init-pki
+  ansible.builtin.command:
+    cmd: "{{ easy_rsa_configuration_directory }} init-pki"
+    chdir: "{{ easy_rsa_configuration_directory }}"
+    creates: "{{ pki_configuration_directory }}"
+
+- name: Easy-RSA build-ca
+  ansible.builtin.command:
+    cmd: "{{ easy_rsa_configuration_directory }} build-ca nopass"
+    chdir: "{{ easy_rsa_configuration_directory }}"
+    creates: "{{ pki_configuration_directory }}/ca.crt"
+
+- name: Easy-RSA gen-dh
+  ansible.builtin.command:
+    cmd: "{{ easy_rsa_configuration_directory }} gen-dh"
+    chdir: "{{ easy_rsa_configuration_directory }}"
+    creates: "{{ pki_configuration_directory }}/dh.pem"
+
+- name: Easy-RSA build-server-full server nopass
+  ansible.builtin.command:
+    cmd: "{{ easy_rsa_configuration_directory }} build-server-full server nopass"
+    chdir: "{{ easy_rsa_configuration_directory }}"
+    creates: "{{ pki_configuration_directory }}/issued/server.crt"
+
+- name: Easy-RSA build-client-full client nopass
+  ansible.builtin.command:
+    cmd: "{{ easy_rsa_configuration_directory }} build-client-full client nopass"
+    chdir: "{{ easy_rsa_configuration_directory }}"
+    creates: "{{ pki_configuration_directory }}/issued/client.crt"
+  
+- name: Easy-RSA gen-crl
+  ansible.builtin.command:
+    cmd: "{{ easy_rsa_configuration_directory }} gen-crl"
+    chdir: "{{ easy_rsa_configuration_directory }}"
+    creates: "{{ pki_configuration_directory }}/crl.pem"
+
+- name: Openvpn generate ta.key
+  ansible.builtin.command:
+    cmd: openvpn --genkey --secret ta.key
+    chdir: "{{ pki_configuration_directory }}"
+    creates: "{{ pki_configuration_directory }}/ta.key"
+
+- name: Copy files to openvpn configuration directory
+  ansible.builtin.copy:
+    src: "{{ pki_configuration_directory }}/{{ item }}"
+    dest: "{{ openvpn_configuration_directory }}/{{ item | basename }}"
+    mode: "0640"
+    remote_src: true
+  loop:
+    - ca.crt
+    - ta.key
+    - dh.pem
+    - issued/server.crt
+    - issued/client.crt
+    - private/ca.key
+    - private/server.key
+    - private/server.key
+
+- name: Place server.conf
+  ansible.builtin.template:
+    src: server.conf.j2
+    dest: "{{ openvpn_configuration_directory }}/server.conf"
+    owner: root
+    mode: "0640"
+
+- name: Place client.ovpn
+  ansible.builtin.template:
+    src: client.conf.j2
+    dest: "{{ openvpn_result_directory }}/client.ovpn"
+    owner: root
+    mode: "0640"
+
+- name: Restart openvpn
+  ansible.builtin.service:
+    name: openvpn
+    state: restarted
+
+
+
+- name: Configuration IP forwarding
+  become: true
+  sysctl:
+    name: "{{ forwarding_name }}"
+    value: "{{ forwarding_value }}"
+    state: present
+
+- name: Add ufw/before.rules content
+  become: true
+  blockinfile:
+    path: /etc/ufw/before.rules
+    insertbefore: BOF
+    content: |
+      # NAT table rules
+      *nat
+      :POSTROUTING ACCEPT [0:0]
+      -A POSTROUTING -s {{ server_ip }}/8 -o eth0 -j MASQUERADE
+      COMMIT
+
+- name: Customize ufw forwarding policy
+  become: true
+  lineinfile:
+    path: "/etc/default/ufw"
+    line: "DEFAULT_FORWARD_POLICY=\"ACCEPT\""
+    regexp: "^DEFAULT_FORWARD_POLICY=\"DROP\""
+
+- name: Open ufw ports for openvpn and ssh
+  become: true
+  shell:  ufw allow openvpn && ufw allow OpenSSH
+
+- name: Enable ufw
+  become: true
+  shell: ufw --force enable
+
+- name: Start openvpn systemd service
+  become: true
+  systemd:
+    name: openvpn@server
+    state: started
+    daemon_reload: yes
+    enabled: yes

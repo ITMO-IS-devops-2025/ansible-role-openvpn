@@ -1,0 +1,22 @@
+{{ ansible_managed | comment }}
+
+port {{ server_port }}
+proto udp
+dev tun
+ca {{ openvpn_configuration_directory }}/ca.crt
+cert {{ openvpn_configuration_directory }}/server.crt
+key {{ openvpn_configuration_directory }}/server.key
+dh {{ openvpn_configuration_directory }}/dh.pem
+topology subnet
+server {{ server_ip }} 255.255.255.0
+ifconfig-pool-persist ipp.txt
+push "dhcp-option DNS 1.1.1.1"
+keepalive 10 120
+cipher AES-256-CBC
+user nobody
+group nogroup
+persist-key
+persist-tun
+status openvpn-status.log
+verb 3
+explicit-exit-notify 1
