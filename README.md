@@ -1,5 +1,5 @@
 # ansible-role-openvpn
-=========
+----------------------
 
 Installs open-vpn server and get its config file on Ubuntu. Role created within educational process and for educational purposes.
 
