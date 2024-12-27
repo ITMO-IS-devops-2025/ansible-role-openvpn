@@ -1,12 +1,8 @@
 ---
 # tasks file for ansible-role-openvpn
-- name: Update apt packages
-  become: true
-  apt:
-    upgrade: yes
-
 - name: Install Open-VPN required packages
-  package:
+  become: true
+  ansible.builtin.package:
    name: "{{ item }}"
    state: present
   with_items:
@@ -100,14 +96,12 @@
 
 
 - name: Configuration IP forwarding
-  become: true
   sysctl:
     name: "{{ openvpn_forwarding_name }}"
     value: "{{ openvpn_forwarding_value }}"
     state: present
 
 - name: Add ufw/before.rules content
-  become: true
   blockinfile:
     path: /etc/ufw/before.rules
     insertbefore: BOF
@@ -119,22 +113,18 @@
       COMMIT
 
 - name: Customize ufw forwarding policy
-  become: true
   lineinfile:
     path: "/etc/default/ufw"
     line: "DEFAULT_FORWARD_POLICY=\"ACCEPT\""
-    regexp: "^DEFAULT_FORWARD_POLICY=\"DROP\""
+    regexp: "^DEFAULT_FORWARD_POLICY="
 
 - name: Open ufw ports for openvpn and ssh
-  become: true
   shell:  ufw allow openvpn && ufw allow OpenSSH
 
 - name: Enable ufw
-  become: true
   shell: ufw --force enable
 
 - name: Start openvpn systemd service
-  become: true
   systemd:
     name: openvpn@server
     state: started
