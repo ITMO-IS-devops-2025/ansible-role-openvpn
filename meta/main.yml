@@ -1,6 +1,6 @@
 galaxy_info:
   role_name: openvpn
-  namespace: solovievrs
+  namespace: itmo-is-devops-2025
   author: Roman Soloviev
   description: Installs open-vpn on Ubuntu. Role created within educational process and for educational purposes.
   company: ITMO IS

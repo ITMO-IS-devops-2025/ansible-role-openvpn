@@ -5,10 +5,10 @@ tls-client
 pull
 dev tun
 proto udp
-remote {{ openvpn_client_server }} {{ server_port }} udp
+remote {{ openvpn_openvpn_client_server }} {{ openvpn_server_port }} udp
 resolv-retry infinite
 nobind
-dhcp-option DNS 8.8.8.8
+dhcp-option DNS {{ openvpn_client_dns }}
 user nobody
 group nogroup
 persist-key

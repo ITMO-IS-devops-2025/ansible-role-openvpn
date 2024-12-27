@@ -6,9 +6,3 @@
     - name: Create Open-VPN server
       ansible.builtin.include_role:
         name: "ansible-role-openvpn"
-        
-    - name: Start and enable openvpn
-      ansible.builtin.service:
-        name: "openvpn"
-        state: started
-        enabled: true
