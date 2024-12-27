@@ -1,6 +1,6 @@
 {{ ansible_managed | comment }}
 
-port {{ server_port }}
+port {{ openvpn_server_port }}
 proto udp
 dev tun
 ca {{ openvpn_configuration_directory }}/ca.crt

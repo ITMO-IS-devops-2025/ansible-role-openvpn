@@ -2,4 +2,4 @@
 # vars file for ansible-role-openvpn
 
 __openvpn_easy_rsa_configuration_directory: "{{ openvpn_configuration_directory }}/easy-rsa"
-__openvpn_pki_configuration_directory: "{{ easy_rsa_configuration_directory }}/pki"
+__openvpn_pki_configuration_directory: "{{ __openvpn_easy_rsa_configuration_directory }}/pki"
