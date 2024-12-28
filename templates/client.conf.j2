@@ -1,19 +1,12 @@
 {{ ansible_managed | comment }}
 
-client
 tls-client
 pull
 dev tun
 proto udp
-remote {{ openvpn_client_server }} {{ openvpn_server_port }} udp
-resolv-retry infinite
+remote {{ openvpn_local_server_ip }} {{ openvpn_server_port }} udp
 nobind
 dhcp-option DNS {{ openvpn_client_dns }}
-user nobody
-group nogroup
-persist-key
-persist-tun
-key-direction 1
 tls-auth {{ openvpn_result_directory }}/ta.key 1
 comp-lzo
 verb 3
