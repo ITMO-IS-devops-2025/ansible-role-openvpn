@@ -24,8 +24,13 @@ openvpn_key_files:
   - issued/client.crt
   - private/ca.key
   - private/server.key
-  - private/server.key
+  - private/client.key
 
+openvpn_client_key_files:
+  - ca.crt
+  - ta.key
+  - issued/client.crt
+  - private/client.key
 
 openvpn_ufw_before_rules_content: |
       # NAT table rules

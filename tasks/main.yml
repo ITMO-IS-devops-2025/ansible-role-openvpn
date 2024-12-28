@@ -85,6 +85,16 @@
     mode: "0640"
   delegate_to: localhost
 
+- name: Copy files to openvpn for client
+  ansible.builtin.copy:
+    src: "{{ __openvpn_pki_configuration_directory }}/{{ item }}"
+    dest: "{{ openvpn_result_directory }}/{{ item | basename }}"
+    mode: "0640"
+    remote_src: true
+  delegate_to: localhost
+  loop:
+    "{{ openvpn_client_key_files }}"
+
 - name: Restart openvpn
   ansible.builtin.service:
     name: openvpn
