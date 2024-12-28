@@ -27,7 +27,7 @@
 
 - name: Easy-RSA build-ca
   ansible.builtin.command:
-    cmd: "{{ __openvpn_easy_rsa_bin }} --vars={{ __openvpn_easyrsa_vars }} build-ca nopass"
+    cmd: "{{ __openvpn_easy_rsa_bin }} --batch --vars={{ __openvpn_easyrsa_vars }} build-ca nopass"
     chdir: "{{ __openvpn_easy_rsa_configuration_directory }}"
     creates: "{{ __openvpn_pki_configuration_directory }}/ca.crt"
 
