@@ -19,10 +19,18 @@
     regexp: "^DEFAULT_FORWARD_POLICY="
 
 - name: Open ufw ports for openvpn and ssh
-  shell:  ufw allow openvpn && ufw allow OpenSSH
+  community.general.ufw:
+    rule: allow
+    port: "{{ item.port }}"
+    proto: "{{ item.protocol }}"
+  with_items:
+    - { port: 'ssh', protocol: 'tcp' }
+    - { port: 'openvpn', protocol: 'udp' }
 
 - name: Enable ufw
-  shell: ufw --force enable
+  community.general.ufw:
+    state: enabled
+    policy: allow
 
 - name: Start openvpn systemd service
   systemd:

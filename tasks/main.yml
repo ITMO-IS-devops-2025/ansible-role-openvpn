@@ -69,6 +69,8 @@
     remote_src: true
   loop:
     "{{ openvpn_key_files }}"
+  notify:
+    - Restart openvpn
 
 - name: Place server.conf
   ansible.builtin.template:
@@ -76,6 +78,8 @@
     dest: "{{ openvpn_configuration_directory }}/server.conf"
     owner: root
     mode: "0640"
+  notify:
+    - Restart openvpn
 
 - name: Place client.ovpn
   ansible.builtin.template:
@@ -84,6 +88,8 @@
     owner: root
     mode: "0640"
   delegate_to: localhost
+  notify:
+    - Restart openvpn
 
 - name: Copy files to openvpn for client
   ansible.builtin.fetch:
@@ -92,11 +98,11 @@
     flat: yes
   loop:
     "{{ openvpn_client_key_files }}"
-
-- name: Restart openvpn
-  ansible.builtin.service:
-    name: openvpn
-    state: restarted
+  notify:
+    - Restart openvpn
+  
+- name: Flush handlers
+  meta: flush_handlers
 
 - name: Open-VPN server up
   ansible.builtin.include_tasks:
