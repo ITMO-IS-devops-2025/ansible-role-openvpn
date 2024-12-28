@@ -11,3 +11,25 @@ openvpn_server_port: 1194
 openvpn_server_mask: 255.255.255.0
 openvpn_client_dns: 8.8.8.8
 openvpn_server_dhcp: 1.1.1.1
+
+openvpn_required_packages:
+  - openvpn
+  - easy-rsa
+
+openvpn_key_files:
+  - ca.crt
+  - ta.key
+  - dh.pem
+  - issued/server.crt
+  - issued/client.crt
+  - private/ca.key
+  - private/server.key
+  - private/server.key
+
+
+openvpn_ufw_before_rules_content: |
+      # NAT table rules
+      *nat
+      :POSTROUTING ACCEPT [0:0]
+      -A POSTROUTING -s {{ openvpn_server_ip }}/8 -o eth0 -j MASQUERADE
+      COMMIT

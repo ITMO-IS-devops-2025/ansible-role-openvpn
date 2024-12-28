@@ -1,13 +1,12 @@
 ---
-# tasks file for ansible-role-openvpn
+# tasks file for ansible-role-openvpn get keys
 - name: Install Open-VPN required packages
   become: true
   ansible.builtin.package:
    name: "{{ item }}"
    state: present
-  with_items:
-    - openvpn
-    - easy-rsa
+  with_list:
+    "{{ openvpn_required_packages }}"
 
 - name: Ensure /easy-rsa exists
   ansible.builtin.file:
@@ -64,14 +63,7 @@
     mode: "0640"
     remote_src: true
   loop:
-    - ca.crt
-    - ta.key
-    - dh.pem
-    - issued/server.crt
-    - issued/client.crt
-    - private/ca.key
-    - private/server.key
-    - private/server.key
+    "{{ openvpn_key_files }}"
 
 - name: Place server.conf
   ansible.builtin.template:
@@ -86,47 +78,13 @@
     dest: "{{ openvpn_result_directory }}/client.ovpn"
     owner: root
     mode: "0640"
-    delegate_to: localhost
+  delegate_to: localhost
 
 - name: Restart openvpn
   ansible.builtin.service:
     name: openvpn
     state: restarted
 
-
-
-- name: Configuration IP forwarding
-  sysctl:
-    name: "{{ openvpn_forwarding_name }}"
-    value: "{{ openvpn_forwarding_value }}"
-    state: present
-
-- name: Add ufw/before.rules content
-  blockinfile:
-    path: /etc/ufw/before.rules
-    insertbefore: BOF
-    content: |
-      # NAT table rules
-      *nat
-      :POSTROUTING ACCEPT [0:0]
-      -A POSTROUTING -s {{ openvpn_server_ip }}/8 -o eth0 -j MASQUERADE
-      COMMIT
-
-- name: Customize ufw forwarding policy
-  lineinfile:
-    path: "/etc/default/ufw"
-    line: "DEFAULT_FORWARD_POLICY=\"ACCEPT\""
-    regexp: "^DEFAULT_FORWARD_POLICY="
-
-- name: Open ufw ports for openvpn and ssh
-  shell:  ufw allow openvpn && ufw allow OpenSSH
-
-- name: Enable ufw
-  shell: ufw --force enable
-
-- name: Start openvpn systemd service
-  systemd:
-    name: openvpn@server
-    state: started
-    daemon_reload: yes
-    enabled: yes
+- name: Open-VPN server up
+  ansible.builtin.include_tasks:
+    file: ufw.yml
