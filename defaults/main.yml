@@ -2,7 +2,6 @@
 # defaults file for ansible-role-openvpn
 openvpn_configuration_directory: /etc/openvpn
 openvpn_result_directory: /etc/openvpn
-openvpn_client_server: "127.0.0.1"
 openvpn_local_server_ip: 192.168.56.201
 
 openvpn_forwarding_name: net.ipv4.ip_forward

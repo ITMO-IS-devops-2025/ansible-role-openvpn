@@ -8,6 +8,7 @@ ca {{ openvpn_configuration_directory }}/ca.crt
 cert {{ openvpn_configuration_directory }}/server.crt
 key {{ openvpn_configuration_directory }}/server.key
 dh {{ openvpn_configuration_directory }}/dh.pem
+tls-auth {{ openvpn_configuration_directory }}/ta.key 0
 topology subnet
 server {{ openvpn_server_ip }} {{ openvpn_server_mask }}
 ifconfig-pool-persist ipp.txt
@@ -21,3 +22,5 @@ persist-tun
 status openvpn-status.log
 verb 3
 explicit-exit-notify 1
+log-append /var/log/openvpn.log
+auth SHA512
