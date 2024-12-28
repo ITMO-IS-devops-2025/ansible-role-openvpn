@@ -20,33 +20,38 @@
     chdir: "{{ __openvpn_easy_rsa_configuration_directory }}"
     creates: "{{ __openvpn_pki_configuration_directory }}"
 
+- name: Deploy Easy-RSA env vars
+  template:
+    src: 'easyrsa.j2'
+    dest: '{{ __openvpn_easyrsa_vars }}'
+
 - name: Easy-RSA build-ca
   ansible.builtin.command:
-    cmd: "{{ __openvpn_easy_rsa_bin }} build-ca nopass"
+    cmd: "{{ __openvpn_easy_rsa_bin }} --vars={{ __openvpn_easyrsa_vars }} build-ca nopass"
     chdir: "{{ __openvpn_easy_rsa_configuration_directory }}"
     creates: "{{ __openvpn_pki_configuration_directory }}/ca.crt"
 
 - name: Easy-RSA gen-dh
   ansible.builtin.command:
-    cmd: "{{ __openvpn_easy_rsa_bin }} gen-dh"
+    cmd: "{{ __openvpn_easy_rsa_bin }} --vars={{ __openvpn_easyrsa_vars }} gen-dh"
     chdir: "{{ __openvpn_easy_rsa_configuration_directory }}"
     creates: "{{ __openvpn_pki_configuration_directory }}/dh.pem"
 
 - name: Easy-RSA build-server-full server nopass
   ansible.builtin.command:
-    cmd: "{{ __openvpn_easy_rsa_bin }} build-server-full server nopass"
+    cmd: "{{ __openvpn_easy_rsa_bin }} --vars={{ __openvpn_easyrsa_vars }} build-server-full server nopass"
     chdir: "{{ __openvpn_easy_rsa_configuration_directory }}"
     creates: "{{ __openvpn_pki_configuration_directory }}/issued/server.crt"
 
 - name: Easy-RSA build-client-full client nopass
   ansible.builtin.command:
-    cmd: "{{ __openvpn_easy_rsa_bin }} build-client-full client nopass"
+    cmd: "{{ __openvpn_easy_rsa_bin }} --vars={{ __openvpn_easyrsa_vars }} build-client-full client nopass"
     chdir: "{{ __openvpn_easy_rsa_configuration_directory }}"
     creates: "{{ __openvpn_pki_configuration_directory }}/issued/client.crt"
   
 - name: Easy-RSA gen-crl
   ansible.builtin.command:
-    cmd: "{{ __openvpn_easy_rsa_bin }} gen-crl"
+    cmd: "{{ __openvpn_easy_rsa_bin }} --vars={{ __openvpn_easyrsa_vars }} gen-crl"
     chdir: "{{ __openvpn_easy_rsa_configuration_directory }}"
     creates: "{{ __openvpn_pki_configuration_directory }}/crl.pem"
 

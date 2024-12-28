@@ -33,3 +33,11 @@ openvpn_ufw_before_rules_content: |
       :POSTROUTING ACCEPT [0:0]
       -A POSTROUTING -s {{ openvpn_server_ip }}/8 -o eth0 -j MASQUERADE
       COMMIT
+
+openvpn_key_country: US
+openvpn_key_province: CA
+openvpn_key_city: SanFrancisco
+openvpn_key_org: ITMO
+openvpn_key_email: akira.nekomachi@gmail.com
+openvpn_key_size: 2048
+openvpn_key_ou: IS
