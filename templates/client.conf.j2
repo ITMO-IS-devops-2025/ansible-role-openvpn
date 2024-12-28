@@ -14,10 +14,10 @@ group nogroup
 persist-key
 persist-tun
 key-direction 1
-tls-auth {{ openvpn_configuration_directory }}/ta.key 1
+tls-auth {{ openvpn_result_directory }}/ta.key 1
 comp-lzo
 verb 3
-ca {{ openvpn_configuration_directory }}/ca.crt
-cert {{ openvpn_configuration_directory }}/client.crt
-key {{ openvpn_configuration_directory }}/client.key
+ca {{ openvpn_result_directory }}/ca.crt
+cert {{ openvpn_result_directory }}/client.crt
+key {{ openvpn_result_directory }}/client.key
 auth SHA512
